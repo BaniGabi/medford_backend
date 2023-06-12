@@ -72,12 +72,13 @@ orderRouter.get(
       },
       {
         $group: {
-          _id: "$paymentMethod",
+          _id: null,
           orders: { $push: "$$ROOT" },
           totalPrice: { $sum: "$totalPrice" },
         },
       },
     ]);
+    res.json(aggregatedOrders);
   })
 );
 
