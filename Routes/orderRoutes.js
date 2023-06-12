@@ -18,6 +18,7 @@ orderRouter.post(
       taxPrice,
       shippingPrice,
       totalPrice,
+      deliveryDate,
     } = req.body;
 
     if (orderItems && orderItems.length === 0) {
@@ -34,6 +35,7 @@ orderRouter.post(
         taxPrice,
         shippingPrice,
         totalPrice,
+        deliveryDate,
       });
 
       const createOrder = await order.save();
@@ -54,6 +56,31 @@ orderRouter.get(
     res.json(orders);
   })
 );
+// AGGREGATE ORDERS BY DELIVERY DATE
+orderRouter.get(
+  "/aggregate",
+  protect,
+  admin,
+  asyncHandler(async (req, res) => {
+    const { paymentMethod } = req.query;
+
+    const aggregatedOrders = await Order.aggregate([
+      {
+        $match: {
+          paymentMethod: paymentMethod,
+        },
+      },
+      {
+        $group: {
+          _id: "$paymentMethod",
+          orders: { $push: "$$ROOT" },
+          totalPrice: { $sum: "$totalPrice" },
+        },
+      },
+    ]);
+  })
+);
+
 // USER LOGIN ORDERS
 orderRouter.get(
   "/",

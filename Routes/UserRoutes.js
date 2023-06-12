@@ -33,7 +33,7 @@ userRouter.post(
 userRouter.post(
   "/",
   asyncHandler(async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, isAdmin } = req.body;
 
     const userExists = await User.findOne({ email });
 
@@ -46,6 +46,7 @@ userRouter.post(
       name,
       email,
       password,
+      isAdmin: true,
     });
 
     if (user) {
