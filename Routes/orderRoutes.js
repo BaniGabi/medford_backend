@@ -18,7 +18,6 @@ orderRouter.post(
       taxPrice,
       shippingPrice,
       totalPrice,
-      deliveryDate,
     } = req.body;
 
     if (orderItems && orderItems.length === 0) {
@@ -35,7 +34,6 @@ orderRouter.post(
         taxPrice,
         shippingPrice,
         totalPrice,
-        deliveryDate,
       });
 
       const createOrder = await order.save();
@@ -64,10 +62,16 @@ orderRouter.get(
   asyncHandler(async (req, res) => {
     const { paymentMethod } = req.query;
 
+    const matchStage = paymentMethod ? { paymentMethod: paymentMethod } : {};
+
     const aggregatedOrders = await Order.aggregate([
+      { $match: matchStage },
       {
-        $match: {
-          paymentMethod: paymentMethod,
+        $lookup: {
+          from: "users", // Replace with the actual name of the "users" collection
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
         },
       },
       {
